@@ -13,6 +13,9 @@ class FiberMapping:
     
 
 class PlotFunctions:
+    """
+    This class is used to store commonly used plotting function
+    """
 
     def __init__(self):
         pass
