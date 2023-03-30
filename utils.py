@@ -5,9 +5,6 @@ import os
 from JIN_pylib import Data2D_XT,ProcessUtil,gjsignal,BasicClass    # JIN_pylib 
 from dataclasses import dataclass
 
-
-# this is a utility code for DOT project
-
 class FiberMapping:
     THIN_V = 42.0
     FLAT_V = 70.0
@@ -17,11 +14,12 @@ class FiberMapping:
     V_LOCS = (THIN_V,FLAT_V,THICK_V,STRAIGHT_V,HELICAL_V)
 
 class FiberMapping_V2:
-    THIN_V = 50.0
-    FLAT_V = 78.0
-    THICK_V = 151.0
-    STRAIGHT_V = 184.0
-    HELICAL_V = 564.0
+    offset = 10
+    THIN_V = FiberMapping.THIN_V + offset
+    THICK_V = FiberMapping.THICK_V + offset
+    FLAT_V = FiberMapping.FLAT_V + offset
+    STRAIGHT_V = FiberMapping.STRAIGHT_V + offset
+    HELICAL_V = FiberMapping.HELICAL_V + offset
     V_LOCS = (THIN_V,FLAT_V,THICK_V,STRAIGHT_V,HELICAL_V)
     
 
@@ -42,6 +40,10 @@ class PlotFunctions:
                 plt.axhline(y=loc, color=color,linestyle=style)
             else:
                 plt.axvline(y=loc, color=color,linestyle=style)
+    
+    @staticmethod
+    def hello_world():
+        print('hello world')
 
 class DataIO:
     
