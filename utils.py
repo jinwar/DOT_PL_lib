@@ -5,6 +5,9 @@ import os
 from JIN_pylib import Data2D_XT,ProcessUtil,gjsignal,BasicClass    # JIN_pylib 
 from dataclasses import dataclass
 
+
+# this is a utility code for DOT project
+
 class FiberMapping:
     THIN_V = 42.0
     FLAT_V = 70.0
