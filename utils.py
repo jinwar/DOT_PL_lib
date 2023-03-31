@@ -185,9 +185,10 @@ class DataSec:
     def get_data(self,dataio,**kwargs):
         self.DASdata = dataio.get_data(self.UTCtime,self.duration, **kwargs)
     
-    def make_plot(self,ylim=[200,0],clim=3e-6,new_mapping=True):
+    def make_plot(self,ylim=[200,0],clim=3e-6,new_mapping=True,isPlotV=True):
         self.DASdata.plot_waterfall()
-        PlotFunctions.plot_vsections(new_mapping=new_mapping)
+        if isPlotV:
+            PlotFunctions.plot_vsections(new_mapping=new_mapping)
         plt.colorbar()
         cx = np.array([-1,1])
         plt.clim(cx*clim)
@@ -227,3 +228,20 @@ def get_spe_filename_from_log(row):
     filename += '.p'
     filename = make_legal_filename(filename)
     return filename
+
+def get_cable_sections(offset):
+    cable_sections = {"thin" : [19.7+offset, 57+offset, 42+offset],
+                  "floffsett" : [60+offset, 103+offset, 70+offset],
+                  "thick" : [106+offset, 162+offset, 143+offset],
+                  "stroffsetight" : [164+offset, 211+offset, 176+offset],
+                  "helicoffsetl" : [212+offset, 700+offset, 558+offset]
+                     }
+    return cable_sections
+
+def cable_sections_lines(a=10):
+    cable_sections = get_cable_sections(a)
+    
+    return plt.axhline(cable_sections['thin'][0],linestyle = '--',color = 'c'),plt.axhline(cable_sections['thin'][1],linestyle = '--',color = 'c'),plt.axhline(cable_sections['thin'][2],linewidth = 2.5, color = 'c'),plt.axhline(cable_sections['flat'][0],linestyle = '--',color = 'darkgreen'),plt.axhline(cable_sections['flat'][1],linestyle = '--',color = 'darkgreen'),plt.axhline(cable_sections['flat'][2],linewidth = 2.5, color = 'darkgreen'),plt.axhline(cable_sections['thick'][0],linestyle = '--',color = 'yellow'),plt.axhline(cable_sections['thick'][1],linestyle = '--',color = 'yellow'),plt.axhline(cable_sections['thick'][2], linewidth = 2.5, color = 'yellow'),plt.axhline(cable_sections['straight'][0],linestyle = '--',color = 'aqua'),plt.axhline(cable_sections['straight'][1],linestyle = '--',color = 'aqua'),plt.axhline(cable_sections['straight'][2],linewidth = 2.5, color = 'aqua'),plt.axhline(cable_sections['helical'][0],linestyle = '--',color = 'k'),plt.axhline(cable_sections['helical'][1],linestyle = '--',color = 'k'),plt.axhline(cable_sections['helical'][2],linewidth = 2.5 , color = 'k'),
+
+
+
