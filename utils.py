@@ -62,7 +62,7 @@ class DataIO:
         data_df = self.sp.get_contents()
         self.data_df = data_df.sort_values(by='time_min')
         
-    def get_data(self,bgtime,duration:int, gauge_length=3,timezone=None):
+    def get_data(self,bgtime,duration:int, gauge_length=1,timezone=None):
         if timezone is not None:
             bgtime = bgtime - np.timedelta64(timezone,'h')
         edtime = bgtime + np.timedelta64(int(duration),'s')
@@ -125,13 +125,39 @@ class Spectrum2D(BasicClass.BasicClass):
     duration: np.int # duration in seconds of the spectrum calculation
     label: str # label of the spectrum
     
-    def plot_waterfall(self):
-        plt.imshow(self.data, extent=[self.faxis.min(), self.faxis.max(), self.daxis.max(), self.daxis.min()], aspect='auto',cmap='seismic')
+    def plot_waterfall(self,islog=True):
+        if islog:
+            plt.imshow(np.log(self.data), extent=[self.faxis.min(), self.faxis.max(), self.daxis.max(), self.daxis.min()], aspect='auto',cmap='seismic')
+        else:
+            plt.imshow(self.data, extent=[self.faxis.min(), self.faxis.max(), self.daxis.max(), self.daxis.min()], aspect='auto',cmap='seismic')
         plt.xlabel('Frequency')
         plt.ylabel('Distance')
         plt.title(self.label)
         plt.colorbar()
     
+    def select_frequency(self,f_min, f_max, copy=False):
+        ind = (self.faxis>=f_min)&(self.faxis<=f_max)
+        if copy:
+            out = self.copy()
+            out.data = out.data[:,ind]
+            out.faxis = out.faxis[ind]
+            return out
+        else:
+            self.data = self.data[:,ind]
+            self.faxis = self.faxis[ind]
+            return None
+        
+    def select_distance(self,d_min,d_max,copy=False):
+        ind = (self.daxis>=d_min)&(self.daxis<=d_max)
+        if copy:
+            out = self.copy()
+            out.data = out.data[ind,:]
+            out.daxis = out.daxis[ind]
+            return out
+        else:
+            self.data = self.data[ind,:]
+            self.daxis = self.daxis[ind]
+            return None
     
     def get_dist_average_spectrum(self,begin_dist,end_dist):
         ind = (self.daxis>=begin_dist)&(self.daxis<end_dist)
@@ -139,7 +165,7 @@ class Spectrum2D(BasicClass.BasicClass):
         trc = Spectrum1D(self.faxis,[begin_dist,end_dist],data)
         return trc
         
-    def get_spe_trace(self,begin_freq,end_freq):
+    def get_freq_average_trace(self,begin_freq,end_freq):
         ind = (self.faxis>=begin_freq)&(self.faxis<end_freq)
         data = np.mean(self.data[:,ind],axis=1)
         trc = Spectrum1D([begin_freq,end_freq],self.daxis,data)
@@ -158,7 +184,7 @@ class Spectrum1D:
     data: np.array 
     label: str = None
     
-    def plot(self):
+    def plot(self,logscale=True):
         if len(self.frequency) == len(self.data):
             plt.plot(self.frequency,self.data,label=self.label)
             plt.xlabel('Frequency')
@@ -167,6 +193,8 @@ class Spectrum1D:
             plt.plot(self.distance,self.data,label=self.label)
             plt.xlabel('Distance')
             plt.ylabel('Amplitude')
+        if logscale:
+            plt.gca().set_yscale('log')
     
     
 class DataSec:
