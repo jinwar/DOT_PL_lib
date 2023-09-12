@@ -124,7 +124,7 @@ class Spectrum2D(BasicClass.BasicClass):
     faxis: np.ndarray # 1D numpy array, frequency axis
     daxis: np.ndarray # 1D numpy array, distance axis
     bgtime: np.datetime64 # beginning time of the spectrum calculation
-    duration: np.int # duration in seconds of the spectrum calculation
+    duration: int # duration in seconds of the spectrum calculation
     label: str # label of the spectrum
     
     def plot_waterfall(self,islog=True):
