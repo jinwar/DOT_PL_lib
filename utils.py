@@ -50,6 +50,7 @@ class DataIO:
     def __init__(self, datapath, reset_index = False):
         self.datapath = datapath
         self.load_contents(reset_index)
+        self.is_apply_gaugelength = True
         
     def load_contents(self,reset_index):
         if reset_index:
@@ -68,8 +69,9 @@ class DataIO:
         edtime = bgtime + np.timedelta64(int(duration),'s')
         das_patches = self.sp.select(time = (bgtime,edtime))
         das_patch = dascore.utils.patch.merge_patches(das_patches,tolerance=5)[0]
+        if self.is_apply_gaugelength:
+            das_patch = das_patch.tran.velocity_to_strain_rate()
         DASdata = Data2D_XT.Patch_to_Data2D(das_patch)
-        DASdata.apply_gauge_length(gauge_length)
         return DASdata
 
     def get_DataSec(self,bgtime,label,**kwargs):

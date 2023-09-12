@@ -28,3 +28,11 @@ class LeakageMapping:
         'wrapped 1m':[483,490]
     }
         
+class LeakagePoint0817:
+
+    sections = {
+        'straight':38, 
+        'black': 121,
+        'flat': 156,
+        'thick': 205
+    }
