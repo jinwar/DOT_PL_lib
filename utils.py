@@ -47,19 +47,20 @@ class PlotFunctions:
 
 class DataIO:
     
-    def __init__(self, datapath, reset_index = False):
+    def __init__(self, datapath, index_file = None, reset_index = False):
         self.datapath = datapath
-        self.load_contents(reset_index)
+        self.load_contents(index_file,reset_index)
         self.is_apply_gaugelength = True
         
-    def load_contents(self,reset_index):
-        if reset_index:
+    def load_contents(self,index_file,reset_index):
+        if index_file is None:
             index_file = self.datapath+'/.dascore_index.h5'
+        if reset_index:
             try:
                 os.remove(index_file)
             except:
                 print('cannot find:', index_file)
-        self.sp = dascore.spool(self.datapath)
+        self.sp = dascore.spool(self.datapath,index_path = index_file)
         data_df = self.sp.get_contents()
         self.data_df = data_df.sort_values(by='time_min')
         
@@ -87,6 +88,7 @@ class DataIO:
         edtime = bgtime + np.timedelta64(duration,'s')
         current_time = bgtime
 
+        print(current_time)
         DASdata = self.get_data(current_time, d_time)
 
         dt = np.median(np.diff(DASdata.taxis))
@@ -129,7 +131,7 @@ class Spectrum2D(BasicClass.BasicClass):
     
     def plot_waterfall(self,islog=True):
         if islog:
-            plt.imshow(np.log(self.data), extent=[self.faxis.min(), self.faxis.max(), self.daxis.max(), self.daxis.min()], aspect='auto',cmap='seismic')
+            plt.imshow(value_to_db(self.data), extent=[self.faxis.min(), self.faxis.max(), self.daxis.max(), self.daxis.min()], aspect='auto',cmap='seismic')
         else:
             plt.imshow(self.data, extent=[self.faxis.min(), self.faxis.max(), self.daxis.max(), self.daxis.min()], aspect='auto',cmap='seismic')
         plt.xlabel('Frequency')
@@ -275,3 +277,22 @@ def cable_sections_lines(a=10):
 
 
 
+def value_to_db(value, reference=1):
+    # Ensure that the input values are positive to avoid undefined logarithms
+    if np.min(value) <= 0 or reference <= 0:
+        raise ValueError("Both value and reference must be positive numbers.")
+    
+    # Calculate the dB value
+    db = 10 * np.log10(value / reference)
+    return db
+
+def estimate_offset(data1,data2):
+    # align the depth
+    dp_trc_norm = np.mean(data1.data,axis=1)
+    dp_trc_dmg = np.mean(data2.data,axis=1)
+
+    # use cross-correlation to estimate the offset
+    cross_corr = np.correlate(dp_trc_norm, dp_trc_dmg,'full')
+    ind = np.argmax(cross_corr)-len(dp_trc_norm)+1
+    offset_x = np.median(np.diff(data1.daxis))*ind
+    return offset_x
